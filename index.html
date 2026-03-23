@@ -1064,35 +1064,36 @@ function showSection(name, topBtn, bnavId) {
 }
 
 // ==================== GOOGLE CALENDAR ====================
-function makeCalLink(title, date, startTime, endTime, location) {
-  const fmt = (d, t) => {
-    const [y,m,day] = d.split('-');
-    const [h,min] = t.replace('–','-').split('-')[0].trim().split(':');
-    return `${y}${m.padStart(2,'0')}${day.padStart(2,'0')}T${h.padStart(2,'0')}${(min||'00').padStart(2,'0')}00`;
-  };
-  const s = fmt(date, startTime);
-  const [sh, sm] = startTime.split(':');
-  const [eh, em] = endTime.split(':');
-  const e = fmt(date, endTime);
-  const base = 'https://calendar.google.com/calendar/render?action=TEMPLATE';
-  return `${base}&text=${encodeURIComponent(title)}&dates=${s}/${e}&location=${encodeURIComponent(location)}&details=${encodeURIComponent('BKP 2026 – Bezpečnosť a kontrola potravín')}`;
+function parseTime(timeStr) {
+  const clean = timeStr.replace('–','-').replace('—','-').replace(/\s/g,'');
+  const parts = clean.split('-');
+  const start = parts[0].trim();
+  const end = parts[1] ? parts[1].trim() : parts[0].trim();
+  return { start, end };
 }
 
-function parseTime(timeStr) {
-  // e.g. "9:00–9:30" or "9.00-9.30"
-  const clean = timeStr.replace('–','-').replace(/\./g,':');
-  const parts = clean.split('-');
-  return { start: parts[0].trim(), end: parts[1] ? parts[1].trim() : parts[0].trim() };
+function makeCalLink(title, dateStr, start, end, loc) {
+  const [y,m,d] = dateStr.split('-');
+  const pad = n => String(n).padStart(2,'0');
+  const toGcal = t => {
+    const [h, min] = t.split(':');
+    return `${y}${pad(m)}${pad(d)}T${pad(h)}${pad(min||'00')}00`;
+  };
+  const s = toGcal(start);
+  const e = toGcal(end);
+  return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${s}/${e}&location=${encodeURIComponent(loc)}&details=${encodeURIComponent('BKP 2026 – Bezpečnosť a kontrola potravín\nwww.potravinarstvo.sk')}`;
 }
 
 // ==================== SESSION RENDER ====================
 function renderSessions(sessions, containerId, date) {
   const now = new Date();
-  const isToday = now.toLocaleDateString('sk') === new Date(date).toLocaleDateString('sk');
+  const confDate = new Date(date + 'T00:00:00');
+  const isToday = now.getFullYear() === confDate.getFullYear() &&
+                  now.getMonth() === confDate.getMonth() &&
+                  now.getDate() === confDate.getDate();
   const container = document.getElementById(containerId);
+  if (!container) return;
   let html = '';
-  let doneCount = 0;
-  let totalTalks = sessions.filter(s => s.type === 'talk' || s.type === 'keynote' || s.type === 'lab').length;
 
   sessions.forEach((s, i) => {
     const { start, end } = parseTime(s.time);
@@ -1101,30 +1102,28 @@ function renderSessions(sessions, containerId, date) {
 
     let statusClass = '';
     if (isToday) {
-      const nowMinutes = now.getHours() * 60 + now.getMinutes();
-      const startMin = sh * 60 + sm;
-      const endMin = eh * 60 + em;
-      if (nowMinutes > endMin) { statusClass = 'passed'; if (s.type !== 'break') doneCount++; }
-      else if (nowMinutes >= startMin && nowMinutes <= endMin) statusClass = 'ongoing';
+      const nowMin = now.getHours() * 60 + now.getMinutes();
+      const startMin = sh * 60 + (sm||0);
+      const endMin = eh * 60 + (em||0);
+      if (nowMin > endMin) statusClass = 'passed';
+      else if (nowMin >= startMin) statusClass = 'ongoing';
     }
 
     const isAddable = s.type === 'talk' || s.type === 'keynote' || s.type === 'lab' || s.type === 'social';
     const key = `${date}-${i}`;
     const isAdded = calendarAdded.has(key);
+    const calUrl = isAddable ? makeCalLink(s.title, date, start, end, 'Kongresové centrum Ensana Esplanade, Piešťany') : '';
 
-    html += `<div class="session-card ${s.type === 'break' ? 'break' : ''} ${s.type === 'social' ? 'social' : ''} ${statusClass}" id="sess-${containerId}-${i}">
-      <div class="session-time">${s.time}</div>`;
+    html += `<div class="session-card ${s.type==='break'?'break':''} ${s.type==='social'?'social':''} ${statusClass}">`;
+    html += `<div class="session-time">${s.time}</div>`;
     if (s.section) html += `<div style="font-size:10px;color:var(--accent);font-weight:600;letter-spacing:.05em;margin-bottom:4px;text-transform:uppercase">${s.section}</div>`;
     html += `<div class="session-title">${s.title}</div>`;
     if (s.speaker) html += `<div class="session-speaker">${s.speaker}</div>`;
-    html += `<div class="session-meta">
-        <span class="session-badge ${s.badge}">${s.label}</span>`;
+    html += `<div class="session-meta"><span class="session-badge ${s.badge}">${s.label}</span>`;
     if (isAddable) {
-      const { start: st, end: en } = parseTime(s.time);
-      const calUrl = makeCalLink(s.title, date, st, en, 'Kongresové centrum Ensana Esplanade, Piešťany');
-      html += `<a href="${calUrl}" target="_blank" class="cal-btn ${isAdded ? 'added' : ''}" onclick="markCal('${key}', this)">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-          ${isAdded ? '✓ Pridané' : '+ Kalendár'}</a>`;
+      html += `<a href="${calUrl}" target="_blank" class="cal-btn ${isAdded?'added':''}" onclick="markCal('${key}',this);event.stopPropagation();">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        ${isAdded?'✓ Pridané':'+ Kalendár'}</a>`;
     }
     html += `</div></div>`;
   });
