@@ -632,7 +632,7 @@ body {
 <body>
 
 <!-- POPUP -->
-<div id="cop-popup">
+<div id="cop-popup" class="hidden">
   <div class="popup-sheet">
     <div class="popup-pill"></div>
     <div class="popup-badge">🔬 CATALYSE projekt</div>
@@ -644,10 +644,11 @@ body {
       <div class="popup-feat"><span class="dot"></span> Diskusie online aj osobne</div>
       <div class="popup-feat"><span class="dot"></span> Zostaňte informovaní</div>
     </div>
-    <a href="https://catalyse-cop.eu/register/" target="_blank" class="popup-btn-primary" onclick="closeCopPopup(true)">
+    <a href="https://catalyse-cop.eu/register/" target="_blank" class="popup-btn-primary" onclick="closeCopPopup('joined')">
       Pridať sa do Komunity praxe →
     </a>
-    <button class="popup-btn-secondary" onclick="document.getElementById('cop-popup').classList.add('hidden'); showSection('program', document.querySelectorAll('.nav-btn')[0], 'bnav-program')">Pripomenúť neskôr</button>
+    <button class="popup-btn-secondary" style="color:var(--green);margin-bottom:4px" onclick="closeCopPopup('member')">✓ Som už členom komunity praxe</button>
+    <button class="popup-btn-secondary" onclick="closeCopPopup('later')">Pripomenúť neskôr</button>
   </div>
 </div>
 
@@ -1037,17 +1038,28 @@ let activePosterFilter = 'all';
 
 // ==================== POPUP ====================
 function initPopup() {
-  const visited = getCookie('bkp_cop_visited');
-  if (!visited) {
-    document.getElementById('cop-popup').classList.remove('hidden');
+  const status = getCookie('bkp_cop_status');
+  // 'member' alebo 'joined' = nikdy viac nezobrazovať
+  // 'later' alebo null = zobraziť pri každom načítaní stránky
+  if (status !== 'member' && status !== 'joined') {
+    setTimeout(() => {
+      document.getElementById('cop-popup').classList.remove('hidden');
+    }, 1000);
   }
 }
-function closeCopPopup(permanent) {
+function closeCopPopup(action) {
   document.getElementById('cop-popup').classList.add('hidden');
-  if (permanent) setCookie('bkp_cop_visited', '1', 365);
+  if (action === 'member' || action === 'joined') {
+    // Permanentne — viac sa nezobrazí
+    setCookie('bkp_cop_status', action, 365);
+    if (action === 'member') showToast('✓ Skvelé! Popup sa už nebude zobrazovať.');
+  } else {
+    // 'later' — zobrazí sa znova pri ďalšom načítaní
+    setCookie('bkp_cop_status', 'later', 1);
+  }
 }
 function markCopVisited() {
-  setCookie('bkp_cop_visited', '1', 365);
+  setCookie('bkp_cop_status', 'joined', 365);
   document.getElementById('cop-popup').classList.add('hidden');
 }
 
@@ -1073,8 +1085,11 @@ function showSection(name, topBtn, bnavId) {
   window.scrollTo(0, 0);
 
   // Show cop popup in info section if not visited
-  if (name === 'info' && !getCookie('bkp_cop_visited')) {
-    document.getElementById('cop-popup').classList.remove('hidden');
+  if (name === 'info') {
+    const status = getCookie('bkp_cop_status');
+    if (status !== 'member' && status !== 'joined') {
+      document.getElementById('cop-popup').classList.remove('hidden');
+    }
   }
 }
 
