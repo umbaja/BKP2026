@@ -338,6 +338,25 @@ body {
 .cal-btn:hover { border-color: var(--accent); color: var(--accent); }
 .cal-btn.added { border-color: var(--green); color: var(--green); }
 
+.q-btn {
+  display: flex; align-items: center; gap: 4px;
+  background: transparent;
+  border: 1px solid rgba(74,158,255,0.3);
+  border-radius: 8px;
+  padding: 4px 9px;
+  font-size: 11px;
+  color: var(--blue);
+  cursor: pointer;
+  font-family: var(--sans);
+  text-decoration: none;
+  transition: border-color .2s, background .2s;
+}
+.q-btn:hover { border-color: var(--blue); background: rgba(74,158,255,0.08); }
+
+.session-actions {
+  display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-top: 8px;
+}
+
 .day-divider {
   height: 1px;
   background: var(--border);
@@ -1136,16 +1155,26 @@ function renderSessions(sessions, containerId, date) {
     const isAdded = calendarAdded.has(key);
     const calUrl = isAddable ? makeCalLink(s.title, date, start, end, 'Kongresové centrum Ensana Esplanade, Piešťany') : '';
 
+    const FORM_BASE = 'https://docs.google.com/forms/d/e/1FAIpQLSfVJM4lMjNerYLfrLUq0xXcbpaxxoJS9aVIwisFEN4XAGCnpQ/viewform';
+    function makeFormUrl(title, speaker) {
+      return `${FORM_BASE}?usp=pp_url&entry.42088573=${encodeURIComponent(title)}&entry.1337875958=${encodeURIComponent(speaker || '')}`;
+    }
+
     html += `<div class="session-card ${s.type==='break'?'break':''} ${s.type==='social'?'social':''} ${statusClass}">`;
     html += `<div class="session-time">${s.time}</div>`;
     if (s.section) html += `<div style="font-size:10px;color:var(--accent);font-weight:600;letter-spacing:.05em;margin-bottom:4px;text-transform:uppercase">${s.section}</div>`;
     html += `<div class="session-title">${s.title}</div>`;
     if (s.speaker) html += `<div class="session-speaker">${s.speaker}</div>`;
-    html += `<div class="session-meta"><span class="session-badge ${s.badge}">${s.label}</span>`;
+    html += `<div class="session-actions"><span class="session-badge ${s.badge}">${s.label}</span>`;
     if (isAddable) {
       html += `<a href="${calUrl}" target="_blank" class="cal-btn ${isAdded?'added':''}" onclick="markCal('${key}',this);event.stopPropagation();">
         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
         ${isAdded?'✓ Pridané':'+ Kalendár'}</a>`;
+    }
+    if (s.speaker) {
+      html += `<a href="${makeFormUrl(s.title, s.speaker)}" target="_blank" class="q-btn">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        Otázka</a>`;
     }
     html += `</div></div>`;
   });
