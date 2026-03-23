@@ -265,7 +265,22 @@ body {
 }
 .session-card.break::before { background: var(--text2); }
 .session-card.social::before { background: var(--green); }
-.session-card.passed { opacity: .5; }
+.session-card.hidden-session { display: none; }
+.show-past-btn {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  width: 100%;
+  background: transparent;
+  border: 1px dashed var(--border);
+  border-radius: var(--r);
+  padding: 10px;
+  font-size: 12px;
+  color: var(--text2);
+  cursor: pointer;
+  font-family: var(--sans);
+  margin-bottom: 8px;
+  transition: border-color .2s, color .2s;
+}
+.show-past-btn:hover { border-color: var(--accent); color: var(--accent); }
 .session-card.passed::before { opacity: 1; background: var(--text2); }
 .session-card.ongoing { border-color: var(--accent); background: rgba(232,184,75,0.05); }
 .session-card.ongoing::before { opacity: 1; }
@@ -1105,7 +1120,7 @@ function renderSessions(sessions, containerId, date) {
       const nowMin = now.getHours() * 60 + now.getMinutes();
       const startMin = sh * 60 + (sm||0);
       const endMin = eh * 60 + (em||0);
-      if (nowMin > endMin) statusClass = 'passed';
+      if (nowMin > endMin) statusClass = 'passed hidden-session';
       else if (nowMin >= startMin) statusClass = 'ongoing';
     }
 
@@ -1129,7 +1144,32 @@ function renderSessions(sessions, containerId, date) {
   });
 
   container.innerHTML = html;
-  return { doneCount, totalTalks };
+
+  // Count hidden (past) sessions and add toggle button if any
+  const passedCount = sessions.filter((s, i) => {
+    const { start, end } = parseTime(s.time);
+    const [sh2] = start.split(':').map(Number);
+    const [eh2, em2] = end.split(':').map(Number);
+    const nowMin = new Date().getHours() * 60 + new Date().getMinutes();
+    return isToday && nowMin > (eh2 * 60 + (em2||0));
+  }).length;
+
+  if (passedCount > 0) {
+    const btn = document.createElement('button');
+    btn.className = 'show-past-btn';
+    btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Zobraziť ${passedCount} odprednášaných`;
+    let visible = false;
+    btn.onclick = () => {
+      visible = !visible;
+      container.querySelectorAll('.hidden-session').forEach(el => {
+        el.style.display = visible ? 'block' : 'none';
+      });
+      btn.innerHTML = visible
+        ? `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Skryť odprednášané`
+        : `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Zobraziť ${passedCount} odprednášaných`;
+    };
+    container.insertBefore(btn, container.firstChild);
+  }
 }
 
 function markCal(key, btn) {
