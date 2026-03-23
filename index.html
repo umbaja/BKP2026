@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>BKP 2026 – Bezpečnosť a kontrola potravín</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0d1117;
+  --bg2: #161b22;
+  --bg3: #1c2330;
+  --card: #1e2636;
+  --border: rgba(255,255,255,0.07);
+  --accent: #e8b84b;
+  --accent2: #c4962f;
+  --green: #3ecf8e;
+  --blue: #4a9eff;
+  --red: #ff6b6b;
+  --muted: rgba(255,255,255,0.45);
+  --text: #e6edf3;
+  --text2: #8b949e;
+  --serif: 'DM Serif Display', serif;
+  --sans: 'DM Sans', sans-serif;
+  --r: 16px;
+  --r-sm: 10px;
+  --shadow: 0 4px 24px rgba(0,0,0,0.4);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html { font-size: 16px; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  max-width: 430px;
+  margin: 0 auto;
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* POPUP */
+#cop-popup {
+  position: fixed; inset: 0; z-index: 1000;
+  background: rgba(0,0,0,0.75);
+  display: flex; align-items: flex-end;
+  animation: fadeIn .3s ease;
+}
+#cop-popup.hidden { display: none; }
+.popup-sheet {
+  background: var(--bg2);
+  border-radius: 24px 24px 0 0;
+  padding: 28px 24px 40px;
+  width: 100%;
+  border-top: 1px solid var(--border);
+  animation: slideUp .35s cubic-bezier(.32,1.2,.42,1);
+}
+.popup-pill {
+  width: 40px; height: 4px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 2px;
+  margin: 0 auto 20px;
+}
+.popup-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #e8b84b22, #c4962f22);
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 20px;
+  margin-bottom: 12px;
+}
+.popup-title {
+  font-family: var(--serif);
+  font-size: 22px;
+  line-height: 1.2;
+  margin-bottom: 10px;
+  color: var(--text);
+}
+.popup-desc {
+  font-size: 14px;
+  color: var(--text2);
+  line-height: 1.65;
+  margin-bottom: 20px;
+}
+.popup-features {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 8px; margin-bottom: 24px;
+}
+.popup-feat {
+  background: var(--bg3);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 12px;
+  color: var(--text2);
+  display: flex; align-items: center; gap: 7px;
+}
+.popup-feat .dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+  flex-shrink: 0;
+}
+.popup-btn-primary {
+  display: block; width: 100%;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: #0d1117;
+  font-family: var(--sans);
+  font-size: 15px;
+  font-weight: 600;
+  padding: 15px;
+  border-radius: 14px;
+  border: none;
+  cursor: pointer;
+  margin-bottom: 10px;
+  text-decoration: none;
+  text-align: center;
+}
+.popup-btn-secondary {
+  display: block; width: 100%;
+  background: transparent;
+  color: var(--text2);
+  font-family: var(--sans);
+  font-size: 14px;
+  padding: 10px;
+  border: none;
+  cursor: pointer;
+  text-align: center;
+}
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; } to { opacity: 1; }
+}
+
+/* HEADER */
+.header {
+  background: linear-gradient(180deg, var(--bg3) 0%, var(--bg) 100%);
+  padding: 48px 20px 24px;
+  position: relative;
+  overflow: hidden;
+}
+.header::before {
+  content: '';
+  position: absolute;
+  top: -60px; right: -40px;
+  width: 200px; height: 200px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(232,184,75,0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+.header-tag {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+.header-title {
+  font-family: var(--serif);
+  font-size: 26px;
+  line-height: 1.15;
+  margin-bottom: 6px;
+}
+.header-subtitle {
+  font-size: 13px;
+  color: var(--text2);
+  margin-bottom: 16px;
+}
+.header-chips {
+  display: flex; gap: 8px; flex-wrap: wrap;
+}
+.chip {
+  display: flex; align-items: center; gap: 5px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 5px 11px;
+  font-size: 12px;
+  color: var(--text2);
+}
+.chip svg { opacity: .6; }
+
+/* NAV */
+.nav-bar {
+  display: flex;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+  scrollbar-width: none;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.nav-bar::-webkit-scrollbar { display: none; }
+.nav-btn {
+  flex-shrink: 0;
+  padding: 14px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text2);
+  background: none;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+  border-bottom: 2px solid transparent;
+  transition: color .2s, border-color .2s;
+  font-family: var(--sans);
+}
+.nav-btn.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+/* SECTIONS */
+.section { display: none; padding: 20px 16px 100px; }
+.section.active { display: block; }
+
+/* PROGRAM */
+.day-header {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 16px;
+}
+.day-label {
+  font-family: var(--serif);
+  font-size: 20px;
+}
+.day-date {
+  font-size: 12px;
+  color: var(--text2);
+  background: var(--bg3);
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+.session-block {
+  position: relative;
+  margin-bottom: 8px;
+}
+.session-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: border-color .2s, background .2s;
+  position: relative;
+  overflow: hidden;
+}
+.session-card::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--accent);
+  border-radius: 0 2px 2px 0;
+  opacity: 0;
+  transition: opacity .2s;
+}
+.session-card.break::before { background: var(--text2); }
+.session-card.social::before { background: var(--green); }
+.session-card.passed { opacity: .5; }
+.session-card.passed::before { opacity: 1; background: var(--text2); }
+.session-card.ongoing { border-color: var(--accent); background: rgba(232,184,75,0.05); }
+.session-card.ongoing::before { opacity: 1; }
+
+.session-time {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .05em;
+  color: var(--text2);
+  margin-bottom: 5px;
+}
+.session-title {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.session-speaker {
+  font-size: 12px;
+  color: var(--text2);
+  font-style: italic;
+}
+.session-meta {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: 8px;
+}
+.session-badge {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 20px;
+}
+.badge-break { background: rgba(139,148,158,0.15); color: var(--text2); }
+.badge-keynote { background: rgba(232,184,75,0.15); color: var(--accent); }
+.badge-talk { background: rgba(74,158,255,0.15); color: var(--blue); }
+.badge-social { background: rgba(62,207,142,0.15); color: var(--green); }
+.badge-lab { background: rgba(255,107,107,0.15); color: var(--red); }
+.badge-meal { background: rgba(139,148,158,0.1); color: var(--text2); }
+
+.cal-btn {
+  display: flex; align-items: center; gap: 4px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 4px 9px;
+  font-size: 11px;
+  color: var(--text2);
+  cursor: pointer;
+  font-family: var(--sans);
+  transition: border-color .2s, color .2s;
+}
+.cal-btn:hover { border-color: var(--accent); color: var(--accent); }
+.cal-btn.added { border-color: var(--green); color: var(--green); }
+
+.day-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 24px 0;
+}
+
+.live-indicator {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: rgba(232,184,75,0.1);
+  border: 1px solid rgba(232,184,75,0.3);
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-size: 11px;
+  color: var(--accent);
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+.live-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%,100% { opacity: 1; transform: scale(1); }
+  50% { opacity: .5; transform: scale(.7); }
+}
+
+/* POSTERS */
+.search-box {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 11px 14px;
+  margin-bottom: 16px;
+}
+.search-box svg { flex-shrink: 0; opacity: .4; }
+.search-box input {
+  background: none; border: none; outline: none;
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 14px;
+  width: 100%;
+}
+.search-box input::placeholder { color: var(--text2); }
+
+.poster-section-title {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 20px 0 10px;
+  padding: 0 2px;
+}
+.poster-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 14px 16px;
+  margin-bottom: 8px;
+  transition: border-color .2s;
+}
+.poster-card:active { border-color: var(--accent); }
+.poster-number {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: .05em;
+  margin-bottom: 5px;
+}
+.poster-title {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.45;
+  margin-bottom: 6px;
+  color: var(--text);
+}
+.poster-authors {
+  font-size: 11px;
+  color: var(--text2);
+  font-style: italic;
+  line-height: 1.5;
+  margin-bottom: 10px;
+}
+.poster-actions {
+  display: flex; gap: 8px;
+}
+.btn-dl {
+  display: flex; align-items: center; gap: 5px;
+  background: rgba(232,184,75,0.1);
+  border: 1px solid rgba(232,184,75,0.3);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 12px;
+  color: var(--accent);
+  cursor: pointer;
+  font-family: var(--sans);
+  font-weight: 500;
+  text-decoration: none;
+  transition: background .2s;
+}
+.btn-dl:hover { background: rgba(232,184,75,0.2); }
+.btn-dl.disabled {
+  opacity: .4; cursor: default;
+  pointer-events: none;
+}
+
+/* INFO */
+.info-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 20px;
+  margin-bottom: 12px;
+}
+.info-card-header {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 14px;
+}
+.info-icon {
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+.info-icon.meal { background: rgba(62,207,142,0.1); }
+.info-icon.social { background: rgba(232,184,75,0.1); }
+.info-icon.book { background: rgba(74,158,255,0.1); }
+.info-card-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+.info-card-subtitle {
+  font-size: 12px;
+  color: var(--text2);
+}
+.info-row {
+  display: flex; align-items: flex-start; gap: 10px;
+  margin-bottom: 10px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.info-row-icon { opacity: .5; flex-shrink: 0; margin-top: 2px; }
+.info-row-text { color: var(--text2); }
+.info-row-text strong { color: var(--text); display: block; }
+.info-divider {
+  height: 1px; background: var(--border);
+  margin: 14px 0;
+}
+
+.community-banner {
+  background: linear-gradient(135deg, rgba(232,184,75,0.08), rgba(62,207,142,0.05));
+  border: 1px solid rgba(232,184,75,0.2);
+  border-radius: var(--r);
+  padding: 20px;
+  margin-bottom: 12px;
+  text-decoration: none;
+  display: block;
+  position: relative;
+  overflow: hidden;
+}
+.community-banner::after {
+  content: '→';
+  position: absolute;
+  right: 20px; top: 50%;
+  transform: translateY(-50%);
+  font-size: 20px;
+  color: var(--accent);
+}
+.cb-tag {
+  font-size: 10px; font-weight: 700;
+  letter-spacing: .1em; text-transform: uppercase;
+  color: var(--green); margin-bottom: 6px;
+}
+.cb-title {
+  font-size: 16px; font-weight: 600;
+  color: var(--text); margin-bottom: 4px;
+  padding-right: 30px;
+}
+.cb-desc {
+  font-size: 13px; color: var(--text2);
+  line-height: 1.5; padding-right: 30px;
+}
+
+/* BOTTOM NAV */
+.bottom-nav {
+  position: fixed;
+  bottom: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 100%; max-width: 430px;
+  background: var(--bg2);
+  border-top: 1px solid var(--border);
+  display: flex;
+  padding: 8px 0 16px;
+  z-index: 200;
+}
+.bnav-btn {
+  flex: 1;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 3px;
+  background: none; border: none;
+  cursor: pointer;
+  font-family: var(--sans);
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text2);
+  padding: 4px 0;
+  transition: color .2s;
+}
+.bnav-btn.active { color: var(--accent); }
+.bnav-btn svg { transition: transform .2s; }
+.bnav-btn.active svg { transform: translateY(-1px); }
+
+/* PROGRESS BAR */
+.progress-container {
+  background: var(--bg3);
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  display: flex; align-items: center; gap: 12px;
+}
+.progress-text {
+  font-size: 12px; color: var(--text2); white-space: nowrap;
+}
+.progress-bar-wrap {
+  flex: 1;
+  background: rgba(255,255,255,0.08);
+  border-radius: 4px;
+  height: 6px;
+  overflow: hidden;
+}
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--green));
+  border-radius: 4px;
+  transition: width .5s ease;
+}
+
+/* TOAST */
+.toast {
+  position: fixed;
+  bottom: 90px; left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 18px;
+  font-size: 13px;
+  color: var(--text);
+  opacity: 0;
+  transition: opacity .3s, transform .3s;
+  pointer-events: none;
+  white-space: nowrap;
+  z-index: 500;
+}
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* FILTER CHIPS */
+.filter-row {
+  display: flex; gap: 8px; overflow-x: auto;
+  scrollbar-width: none; margin-bottom: 16px;
+  padding-bottom: 2px;
+}
+.filter-row::-webkit-scrollbar { display: none; }
+.filter-chip {
+  flex-shrink: 0;
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text2);
+  cursor: pointer;
+  font-family: var(--sans);
+  transition: all .2s;
+}
+.filter-chip.active {
+  background: rgba(232,184,75,0.1);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+</style>
+</head>
+<body>
+
+<!-- POPUP -->
+<div id="cop-popup">
+  <div class="popup-sheet">
+    <div class="popup-pill"></div>
+    <div class="popup-badge">🔬 CATALYSE projekt</div>
+    <div class="popup-title">Zapojte sa do Komunity praxe bezpečnosti potravín</div>
+    <div class="popup-desc">CATALYSE buduje digitálnu platformu pre výskumníkov, odborníkov z praxe, regulátorov a používateľov potravinového systému.</div>
+    <div class="popup-features">
+      <div class="popup-feat"><span class="dot"></span> Spolupracujte s výskumníkmi</div>
+      <div class="popup-feat"><span class="dot"></span> Prístup k aktuálnym poznatkom</div>
+      <div class="popup-feat"><span class="dot"></span> Diskusie online aj osobne</div>
+      <div class="popup-feat"><span class="dot"></span> Zostaňte informovaní</div>
+    </div>
+    <a href="https://catalyse-cop.eu/register/" target="_blank" class="popup-btn-primary" onclick="closeCopPopup(true)">
+      Pridať sa do Komunity praxe →
+    </a>
+    <button class="popup-btn-secondary" onclick="closeCopPopup(false)">Neskôr pripomenie</button>
+  </div>
+</div>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-tag">XXIII. Vedecká konferencia · BKP 2026</div>
+  <div class="header-title">Bezpečnosť a kontrola potravín</div>
+  <div class="header-subtitle">Kongresové centrum Ensana Esplanade, Piešťany</div>
+  <div class="header-chips">
+    <div class="chip">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      25.–27. marca 2026
+    </div>
+    <div class="chip">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      Piešťany, SR
+    </div>
+  </div>
+</div>
+
+<!-- TOP NAV -->
+<div class="nav-bar" id="topNav">
+  <button class="nav-btn active" onclick="showSection('program', this)">Program</button>
+  <button class="nav-btn" onclick="showSection('postery', this)">Postery</button>
+  <button class="nav-btn" onclick="showSection('info', this)">Praktické info</button>
+</div>
+
+<!-- ===== PROGRAM ===== -->
+<div class="section active" id="sec-program">
+
+  <div class="live-indicator" id="liveIndicator" style="display:none">
+    <span class="live-dot"></span> Práve prebieha
+  </div>
+
+  <div class="progress-container" id="progressContainer" style="display:none">
+    <span class="progress-text" id="progressText">0 / 0 odprednášané</span>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="progressFill" style="width:0%"></div>
+    </div>
+  </div>
+
+  <!-- DAY 1 - Thursday 26.3. -->
+  <div class="day-header">
+    <div class="day-label">Štvrtok</div>
+    <div class="day-date">26. marca 2026</div>
+  </div>
+
+  <div id="sessions-day1"></div>
+
+  <div class="day-divider"></div>
+
+  <!-- DAY 2 - Friday 27.3. -->
+  <div class="day-header">
+    <div class="day-label">Piatok</div>
+    <div class="day-date">27. marca 2026</div>
+  </div>
+
+  <div id="sessions-day2"></div>
+
+</div>
+
+<!-- ===== POSTERY ===== -->
+<div class="section" id="sec-postery">
+  <div class="search-box">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input type="text" id="posterSearch" placeholder="Hľadať poster alebo autora…" oninput="filterPosters()">
+  </div>
+  <div class="filter-row" id="posterFilters"></div>
+  <div id="posterList"></div>
+</div>
+
+<!-- ===== INFO ===== -->
+<div class="section" id="sec-info">
+
+  <a href="https://catalyse-cop.eu/register/" class="community-banner" target="_blank" onclick="markCopVisited()">
+    <div class="cb-tag">🌐 CATALYSE Community of Practice</div>
+    <div class="cb-title">Zapojte sa do Komunity praxe</div>
+    <div class="cb-desc">Digitálna platforma pre bezpečnosť potravín – výskumníci, odborníci, regulátori</div>
+  </a>
+
+  <div class="info-card">
+    <div class="info-card-header">
+      <div class="info-icon meal">🍽️</div>
+      <div>
+        <div class="info-card-title">Obedy</div>
+        <div class="info-card-subtitle">26. a 27. marca</div>
+      </div>
+    </div>
+    <div class="info-row">
+      <span class="info-row-icon">📅</span>
+      <div class="info-row-text">
+        <strong>Štvrtok 26.3. — 12:35 – 13:45</strong>
+        Miesto obeda: [DOPLNIŤ – napr. Reštaurácia hotela Esplanade]
+      </div>
+    </div>
+    <div class="info-divider"></div>
+    <div class="info-row">
+      <span class="info-row-icon">📅</span>
+      <div class="info-row-text">
+        <strong>Piatok 27.3. — 12:45 – 13:30</strong>
+        Miesto obeda: [DOPLNIŤ – napr. Reštaurácia hotela Esplanade]
+      </div>
+    </div>
+    <div class="info-divider"></div>
+    <div class="info-row">
+      <span class="info-row-icon">ℹ️</span>
+      <div class="info-row-text">[DOPLNIŤ – napr. Obed je zahrnutý v konferenčnom poplatku. Vegetariánska možnosť dostupná po prihlásení.]</div>
+    </div>
+  </div>
+
+  <div class="info-card">
+    <div class="info-card-header">
+      <div class="info-icon social">🎉</div>
+      <div>
+        <div class="info-card-title">Spoločenský večer</div>
+        <div class="info-card-subtitle">Štvrtok 26. marca, 18:30</div>
+      </div>
+    </div>
+    <div class="info-row">
+      <span class="info-row-icon">📍</span>
+      <div class="info-row-text">
+        <strong>[DOPLNIŤ – miesto večera]</strong>
+        [DOPLNIŤ – napr. Veľká sála, prízemie, Ensana Esplanade Hotel]
+      </div>
+    </div>
+    <div class="info-divider"></div>
+    <div class="info-row">
+      <span class="info-row-icon">🕕</span>
+      <div class="info-row-text">
+        <strong>18:30 – 24:00</strong>
+        Program: [DOPLNIŤ – napr. Slávnostná večera, degustácia vín, živá hudba]
+      </div>
+    </div>
+    <div class="info-divider"></div>
+    <div class="info-row">
+      <span class="info-row-icon">ℹ️</span>
+      <div class="info-row-text">[DOPLNIŤ – napr. Formálny dress code. Vstup len s konferenčným preukazom.]</div>
+    </div>
+  </div>
+
+  <div class="info-card">
+    <div class="info-card-header">
+      <div class="info-icon book">📚</div>
+      <div>
+        <div class="info-card-title">Zborník prác</div>
+        <div class="info-card-subtitle">Potravinarstvo Slovak Journal of Food Sciences</div>
+      </div>
+    </div>
+    <div class="info-row">
+      <span class="info-row-icon">📖</span>
+      <div class="info-row-text">
+        <strong>Vedecký recenzovaný zborník</strong>
+        Všetky príspevky budú publikované v časopise Potravinarstvo Slovak Journal of Food Sciences (ISSN 1337-0960).
+      </div>
+    </div>
+    <div class="info-divider"></div>
+    <div class="info-row">
+      <span class="info-row-icon">🌐</span>
+      <div class="info-row-text">
+        <strong>Online dostupnosť</strong>
+        <a href="https://www.potravinarstvo.sk" style="color:var(--blue)">www.potravinarstvo.sk</a>
+      </div>
+    </div>
+    <div class="info-divider"></div>
+    <div class="info-row">
+      <span class="info-row-icon">⬇️</span>
+      <div class="info-row-text">
+        <a href="https://PLACEHOLDER-ZBORNIK-URL" style="color:var(--accent)">Stiahnuť zborník (PDF) →</a><br>
+        <span style="font-size:11px;opacity:.6">[DOPLNIŤ – link bude aktívny po vydaní]</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="info-card" style="margin-top: 4px;">
+    <div class="info-card-header">
+      <div class="info-icon" style="background:rgba(255,107,107,0.1)">📞</div>
+      <div>
+        <div class="info-card-title">Kontakt</div>
+        <div class="info-card-subtitle">Organizačný výbor</div>
+      </div>
+    </div>
+    <div class="info-row">
+      <span class="info-row-icon">👤</span>
+      <div class="info-row-text">
+        <strong>prof. Ing. Jozef Golian, Dr.</strong>
+        SPU Nitra, Tr. A. Hlinku 2, 949 76 Nitra
+      </div>
+    </div>
+    <div class="info-divider"></div>
+    <div class="info-row">
+      <span class="info-row-icon">📱</span>
+      <div class="info-row-text"><a href="tel:+421376414325" style="color:var(--blue)">037/6414 325</a></div>
+    </div>
+    <div class="info-row">
+      <span class="info-row-icon">✉️</span>
+      <div class="info-row-text"><a href="/cdn-cgi/l/email-protection#2d674257484b036a4241444c436d5843444c4a035e46" style="color:var(--blue)"><span class="__cf_email__" data-cfemail="6b2104110e0d452c0407020a052b1e05020a0c451800">[email&#160;protected]</span></a></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+  <button class="bnav-btn active" id="bnav-program" onclick="showSection('program', null, 'bnav-program')">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    Program
+  </button>
+  <button class="bnav-btn" id="bnav-postery" onclick="showSection('postery', null, 'bnav-postery')">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+    Postery
+  </button>
+  <button class="bnav-btn" id="bnav-info" onclick="showSection('info', null, 'bnav-info')">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+    Info
+  </button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+// ==================== DATA ====================
+
+const SESSIONS_DAY1 = [
+  { time: "8:00–9:00", title: "Prezentácia účastníkov", type: "break", badge: "badge-break", label: "Registrácia" },
+  { time: "9:00–9:15", title: "Otvorenie konferencie", type: "keynote", badge: "badge-keynote", label: "Otvorenie" },
+  { time: "9:15–9:30", title: "Udeľovanie ocenení", type: "keynote", badge: "badge-keynote", label: "Ocenenia" },
+  { time: "9:30–10:00", title: "Veterinární dozor v ČR v roce 2025", speaker: "Zbyněk Semerád, Veronika Vlasáková", section: "Aktuálne problémy hygieny a bezpečnosti potravín", type: "talk", badge: "badge-talk", label: "Prednáška" },
+  { time: "10:00–10:30", title: "Státní zemědělská a potravinářská inspekce České republiky v roce 2025", speaker: "Martin Klanica", type: "talk", badge: "badge-talk", label: "Prednáška" },
+  { time: "10:30–11:00", title: "Prestávka na kávu", type: "break", badge: "badge-break", label: "Prestávka" },
+  { time: "11:00–11:20", title: "Komunikační aktivity v oblasti bezpečnosti potravin", speaker: "Jitka Götzová, Ondřej Horák", type: "talk", badge: "badge-talk", label: "Prednáška" },
+  { time: "11:20–11:35", title: "Eurobarometer 2025 o bezpečnosti potravín v EÚ a v SR", speaker: "Petra Vanková, Gabriela Dringušová, Kristína Lépesová", type: "talk", badge: "badge-talk", label: "Prednáška" },
+  { time: "11:35–11:50", title: "Aromatizace potravin: výhody, rizika, legislativní rámec a aktuální trendy", speaker: "Helena Čížková, Iveta Šístková", type: "talk", badge: "badge-talk", label: "Prednáška" },
+  { time: "11:50–12:05", title: "Odporúčania pre stravovanie a výživu v SR založené na potravinových skupinách", speaker: "Jozef Golian", type: "talk", badge: "badge-talk", label: "Prednáška" },
+  { time: "12:05–12:25", title: "Aktuálne trendy v judikatúre Súdneho dvora EÚ: Kde končí výživový doplnok a začína liek?", speaker: "Jana Venhartová", type: "talk", badge: "badge-talk", label: "Prednáška" },
+  { time: "12:25–12:35", title: "Diskusia", type: "break", badge: "badge-break", label: "Diskusia" },
+  { time: "12:35–13:45", title: "Obed", type: "break", badge: "badge-meal", label: "Obed" },
+  { time: "13:45–14:00", title: "Rast Lacticaseibacillus rhamnosus GG v mlieku a v rastlinných nápojoch", speaker: "Ľubomír Valík, Tamara Brhelová et al.", section: "Mikrobiologická bezpečnosť potravín a hodnotenie rizika", type: "talk", badge: "badge-talk", label: "Prednáška" },
+  { time: "14:00–14:15", title: "Porovnanie tradičných ISO metód a alternatívnych prístupov pri testovaní Salmonella a Listeria", speaker: "Gabriela Pásztorová", type: "talk", badge: "badge-talk", label: "Prednáška" },
+  { time: "14:15–14:30", title: "Vplyv zníženia obsahu soli na bezpečnosť a chuť mäkkých mäsových výrobkov", speaker: "Slavomír Marcinčák et al.", section: "Bezpečnosť a kontrola mäsa a mäsových výrobkov", type: "talk", badge: "badge-talk", label: "Prednáška" },
+  { time: "14:30–14:55", title: "Plant-based meal replacement dizajnovaný na podporu endogénnych GLP-1 signálov", speaker: "Ján Durec", section: "Bezpečnosť potravín a zdravie", type: "talk", badge: "badge-talk", label: "Prednáška" },
+  { time: "14:55–15:10", title: "Kvalita, ktorá sa oplatí: Analýza požiadaviek Lidla na ovocie a zeleninu", speaker: "Michaela Kleinová, Marianna Fabianová", type: "talk", badge: "badge-talk", label: "Prednáška" },
+  { time: "15:10–15:35", title: "Prestávka na kávu", type: "break", badge: "badge-break", label: "Prestávka" },
+  { time: "15:35–16:00", title: "Digitalizácia výrobných záznamov", speaker: "Branislav Bálint", section: "Digitalizácia v potravinárstve", type: "talk", badge: "badge-talk", label: "Prednáška" },
+  { time: "16:00–16:15", title: "Využitie iónovej chromatografie v potravinárstve", speaker: "Martin Perončík", section: "Prezentácie laboratórnej techniky", type: "lab", badge: "badge-lab", label: "Lab tech" },
+  { time: "16:15–16:30", title: "Bioochrana v masném průmyslu: přístupy k zajištění bezpečnosti potravin", speaker: "Josef Balaš", type: "talk", badge: "badge-talk", label: "Prednáška" },
+  { time: "16:30–17:00", title: "Implementace pokročilých technologií kontroly kvality", speaker: "Jakub Tuček", type: "talk", badge: "badge-talk", label: "Prednáška" },
+  { time: "17:00–17:15", title: "Diskusia", type: "break", badge: "badge-break", label: "Diskusia" },
+  { time: "18:30–24:00", title: "Spoločenský večer", type: "social", badge: "badge-social", label: "Večer" },
+];
+
+const SESSIONS_DAY2 = [
+  { time: "9:00–9:30", title: "Úradná kontrola potravín v SR v roku 2025", speaker: "Martin Chudý", section: "Aktuálne problémy hygieny a bezpečnosti potravín", type: "talk", badge: "badge-talk", label: "Prednáška" },
+  { time: "9:30–9:45", title: "Srovnání vybraných nutričních parametrů různých odrůd máku setého (Papaver somniferum L.)", speaker: "Monika Sabolová et al.", section: "Bezpečnosť a kontrola potravín rastlinného pôvodu", type: "talk", badge: "badge-talk", label: "Prednáška" },
+  { time: "9:45–10:00", title: "Potraviny s pridanou biologickou hodnotou: technologické a ekonomické aspekty využitia minoritných plodín", speaker: "Tatiana Bojňanská et al.", type: "talk", badge: "badge-talk", label: "Prednáška" },
+  { time: "10:00–10:15", title: "Bezpečnosť verzus senzorická kvalita: polosuchá fermentácia červenej šošovice vláknitými hubami", speaker: "Kristína Kukurová et al.", type: "talk", badge: "badge-talk", label: "Prednáška" },
+  { time: "10:15–10:30", title: "Akrylamid v extrudovaných výrobkoch: možnosti kontroly, znižovania a rýchlej identifikácie", speaker: "Zuzana Ciesarová et al.", type: "talk", badge: "badge-talk", label: "Prednáška" },
+  { time: "10:30–11:00", title: "Prestávka na kávu", type: "break", badge: "badge-break", label: "Prestávka" },
+  { time: "11:00–11:15", title: "Zmeny imunoreaktivity pšeničného gliadinu v súvislosti s prídavkom bioaktívnych látok a nanočastíc", speaker: "Zdeňka Javůrková et al.", type: "talk", badge: "badge-talk", label: "Prednáška" },
+  { time: "11:15–11:30", title: "Vliv přírodního biostimulantu na antioxidační potenciál microgreens brokolice", speaker: "Eliška Míková et al.", type: "talk", badge: "badge-talk", label: "Prednáška" },
+  { time: "11:30–11:45", title: "Kvalita ryb a masných výrobků z obchodní sítě ČR", speaker: "Pavel Diviš", section: "Bezpečnosť a kontrola minoritných živočíšnych produktov", type: "talk", badge: "badge-talk", label: "Prednáška" },
+  { time: "11:45–12:00", title: "Chitin – živočíšna vláknina jedlého hmyzu", speaker: "Lenka Kouřimská", type: "talk", badge: "badge-talk", label: "Prednáška" },
+  { time: "12:00–12:15", title: "Není vláknina jako vláknina", speaker: "Petra Škvorová, Eliška Zátková", type: "talk", badge: "badge-talk", label: "Prednáška" },
+  { time: "12:15–12:30", title: "Vyhodnotenie posterov", type: "break", badge: "badge-break", label: "Postery" },
+  { time: "12:30–12:45", title: "Záver konferencie", type: "keynote", badge: "badge-keynote", label: "Záver" },
+  { time: "12:45–13:30", title: "Obed", type: "break", badge: "badge-meal", label: "Obed" },
+];
+
+const POSTER_SECTIONS = [
+  { id: "s1", title: "Sekcia 1: Aktuálne problémy hygieny a bezpečnosti potravín", posters: [
+    { title: "Mikroplasty v potravinách a možnosti ich kontroly v potravinárskych podnikoch", authors: "Jozef Čapla, Peter Zajác, Martina Fikselová, Simona Kunová" },
+    { title: "Zmeny vybraných kontaminantov v potravinách aktuálne sledované a diskutované v EÚ", authors: "Jozef Golian, Ľubomír Belej, Matej Mázor, Matej Čech" },
+    { title: "Workshopy Rurbanive: pomoc farmářům a lokálním producentům zkrátit dodavatelský řetězec", authors: "Lenka Kouřimská, Marie Šimpachová Pechrová" },
+    { title: "Výukové centrum zpracování zemědělských produktů", authors: "Anna Šebová, Veronika Legarová, Petr Kadlec" },
+    { title: "Hygienické odvodnenie sušiarne škrobu: case study závodu Tate & Lyle, Boleráz (2025)", authors: "Michal Valo, Juraj Svitana" },
+    { title: "Videonávody ako nástroj inovatívnej výučby anorganickej chémie", authors: "Marek Šnirc, Silvia Jakabová, Alena Vollmannová" },
+  ]},
+  { id: "s2", title: "Sekcia 2: Mikrobiologická a mykologická bezpečnosť potravín", posters: [
+    { title: "Hodnotenie bezpečnosti výberovej zelenej kávy arabika z afrických krajín z hľadiska výskytu mikromycét a ochratoxínu A", authors: "Zuzana Barboráková et al." },
+    { title: "Porovnanie mykocenózy paradajok z maloobchodných reťazcov na Slovensku a v Maďarsku", authors: "Zuzana Barboráková, Balázs Klátyik et al." },
+    { title: "Citlivosť Enterokokov z ovčích hrudkových syrov ku postbiotickým substanciám", authors: "Eva Bino, Natália Zábolyová et al." },
+    { title: "Dynamika rastu a zastúpenia mikroorganizmov v cereálno-orechových výrobkoch s medom počas skladovania", authors: "Simona Kunová et al." },
+    { title: "Mikrobiologické riziká a vybrané kvalitatívne charakteristiky sušených paradajok", authors: "Mariana Kováčová et al." },
+    { title: "Legislatíva a monitoring antimikrobiálnej rezistencie v mäse hovädzieho dobytka a v mlieku", authors: "Ivona Kožárová et al." },
+    { title: "Postbiotické substancie a ich účinok na kmene z rodu Raoultella izolované z ovčieho a kozieho mlieka", authors: "Andrea Lauková et al." },
+    { title: "Mykologické aspekty kazenia vybraných druhov koreňovej a plodovej zeleniny v maloobchodnej sieti", authors: "Zuzana Mašková et al." },
+    { title: "Antifungálny a antitoxigénny účinok parnej fázy vybraných rastlinných silíc na Aspergillus flavus", authors: "Monika Mrvová et al." },
+    { title: "Zelená syntéza strieborných nanočastíc ako alternatívna antibakteriálna stratégia proti rezistentným baktériám", authors: "Silvia Ondrašovičová et al." },
+    { title: "Využitie postbiotických substancií v chove králikov pre udržanie kvality králičieho mäsa", authors: "Monika Pogány Simonová et al." },
+    { title: "In vitro hodnotenie účinku silice z Juniperus communis na kmene Botrytis cinerea izolované z plesnivého ovocia a zeleniny", authors: "Dana Tančinová et al." },
+    { title: "Účinnosť vybraných dezinfekčných prípravkov na mikrobiálnu záťaž škrupín kuracích vajec", authors: "Mária Vargová et al." },
+    { title: "Prežívanie prospešného enkapsulovaného kmeňa Lactococcus lactis MK1/3 v bezlaktózovom jogurte z kravského mlieka", authors: "Natália Zábolyová et al." },
+    { title: "Mikrobiálna kontaminácia nákupných vozíkov a košíkov v obchodoch s potravinami", authors: "Lucia Zeleňáková et al." },
+    { title: "Komplexné posúdenie mikrobiálnej kontaminácie a fyzikálno-chemických ukazovateľov komerčných a modelovo pripravených lahôdkových šalátov", authors: "Lucia Zeleňáková, Simona Kunová et al." },
+  ]},
+  { id: "s3", title: "Sekcia 3: Chemická bezpečnosť potravín", posters: [
+    { title: "Druhovo závislé nutričné a elementárne zloženie divo rastúcich a pestovaných jedlých húb", authors: "Július Árvay et al." },
+    { title: "Mikro a nanoplasty v materiáloch prichádzajúcich do kontaktu s potravinami: Komplexná syntéza mechanizmov uvoľňovania, analytických dôkazov a rizikových dôsledkov", authors: "Jozef Čapla et al." },
+    { title: "Posúdenie zdravotného rizika z konzumácie divorastúcich jedlých húb (M.procera a C.cibarius) z hľadiska celkového obsahu ortuti", authors: "Lenka Demková et al." },
+    { title: "Analýza obsahu erinacínu A v koralovci ježovitom a vo výživových doplnkoch z neho", authors: "Silvia Jakabová et al." },
+    { title: "Mobilní průtokový cytometr jako nástroj pro kontrolu sanitačních úkonů na drůbežích jatkách", authors: "Michal Kaluža, Miroslav Macháček, Anna Mich Kašparová" },
+    { title: "Stanoveni čistoty hal v chovu brojlerů rychlými detekčními metodami", authors: "Macháček Miroslav, Kaluža Michal, Kabrhel Vojtěch" },
+    { title: "Obsah arzénu, kadmia a olova v svalovine jeleňovitej zveri z vybraných regiónov Slovenska", authors: "Ladislav Staruch, Ervín Ďurka, Igor Bodík" },
+    { title: "Vplyv teploty sušenia na zloženie mastných kyselín, obsah glukánov a indexy lipidového zdravia u divo rastúceho suchohríba obyčajného (Imleria badia)", authors: "Marek Šnirc et al." },
+  ]},
+  { id: "s4", title: "Sekcia 4: Výživa a bezpečnosť potravín", posters: [
+    { title: "Antibakteriálne a antioxidačné účinky medu z juhozápadného Slovenska", authors: "Soňa Felšöciová, Simona Kunová, Eva Ivanišová" },
+    { title: "Spracovanie syra tofu: vybrané parametre od semien až po finálne produkty a vedľajšie produkty", authors: "Daniela Lukáčová et al." },
+    { title: "Nutričné zloženie a bioaktívne vlastnosti vybraných odrôd vlašských orechov (Juglans regia L.)", authors: "Ivona Jančo, Eva Ivanišová" },
+    { title: "Stanovenie fyzikálnych a chemických vlastností kvetových medov", authors: "Beáta Koréneková et al." },
+    { title: "Informačný systém GRISS ako nástroj podpory genetickej diverzity pre udržateľné potravinové systémy", authors: "Ľubomir Mendel et al." },
+    { title: "Výživový a senzorický potenciál inovatívnych zeleninových omáčok v kontexte zmien spracovania a technologických úprav", authors: "Andrea Mendelová et al." },
+    { title: "Spotrebiteľské postoje a preferencie generácie Z v kontexte konzumácie vlašských orechov", authors: "Kristína Predanócyová et al." },
+    { title: "Zhodnotenie spotrebiteľského správania pri nákupe potravín online formou v Slovenskej republike", authors: "Roman Récky, Patrik Rovný" },
+    { title: "Biologicky rozložiteľný organický odpad ako substrát pre produkciu jedlého hmyzu: Regionálna dostupnosť a potenciál konverzie na Slovensku", authors: "Radoslav Židek et al." },
+  ]},
+  { id: "s5", title: "Sekcia 5: Bezpečnosť a kontrola mlieka a mliečnych výrobkov", posters: [
+    { title: "Porovnanie dvoch kultivačných testov na rýchlu identifikáciu patogénov pri mastitídach u dojníc priamo v podmienkach chovu", authors: "Zuzana Farkašová et al." },
+    { title: "Vplyv klimatických podmienok na dojivosť a kvalitu ovčieho mlieka produkovaného počas pastevnej sezóny", authors: "Zuzana Lacková et al." },
+    { title: "Kontrola kontaminantných Enterokokov zo surového kozieho mlieka postbiotickými substanciami", authors: "Andrea Lauková et al." },
+    { title: "Zpracování mléka – výroba sýru typu halloumi", authors: "Veronika Legarová, Anna Šebová" },
+    { title: "Vzťah medzi sezónou otelenia a produkčnými ukazovateľmi dojníc na prvej laktácii pri holštajnskom plemene", authors: "Lucia Mačuhová et al." },
+    { title: "Vplyv výživy a mliečnej produkcie na ekologickú záťaž na farme dojníc", authors: "Iveta Maskaľová et al." },
+    { title: "Vztah mezi počtem somatických buněk a parametry imunitní odezvy mléčné žlázy skotu", authors: "Petr Sláma et al." },
+    { title: "Odchov teliat pod dojnicami: rovnováha medzi výsledkami vedy a očakávaniami konzumenta", authors: "Vladimír Tančin et al." },
+    { title: "Hodnotenie počtu somatických buniek na detekciu subklinickej mastitídy dojných oviec", authors: "Kristína Tvarožková et al." },
+    { title: "Možnosti využitia mernej elektrickej vodivosti kozieho mlieka pre rýchle posúdenie zdravotného stavu vemena", authors: "Michal Uhrinčať et al." },
+    { title: "Zhodnotenie počtu somatických buniek pred zasušením a po otelení u holštajnských dojníc", authors: "Martina Vršková et al." },
+    { title: "Antimikrobiálna rezistencia v produkcii mlieka z pohľadu analýzy dát: algoritmický modul integrovaného poľnohospodárskeho systému", authors: "Jana Výrostková et al." },
+    { title: "Vplyv humínových látok ako organických prísad na bachorovú fermentáciu a kvalitu mlieka dojníc", authors: "František Zigo et al." },
+  ]},
+  { id: "s6", title: "Sekcia 6: Bezpečnosť a kontrola mäsa a mäsových výrobkov", posters: [
+    { title: "Porovnanie texturálnych parametrov mäsových výrobkov a ich rastlinnych analógov", authors: "Ľubomír Belej, Jozef Golian, Matej Mázor" },
+    { title: "Sous-vide ako nástroj potenciálneho predĺženia mikrobiologickej stability sumčeka afrického (Clarias gariepinus)", authors: "Matej Čech et al." },
+    { title: "Jakostní parametry kuřecích šunek vyrobených z masa brojlerových kuřat krmených přídavkem řasy Chlorella do krmné směsi", authors: "Hong Phuong Luongová et al." },
+    { title: "Vliv tepelné úpravy na složení mastných kyselin a senzorické vlastnosti vepřového masa", authors: "Kateřina Kadlecová et al." },
+    { title: "Používanie humínových látok v kontexte produkčného zdravia hydiny", authors: "Beáta Koréneková, Ivona Kožárová" },
+    { title: "Vplyv nitrát-reduktázových baktérií Staphylococcus xylosus a Staphylococcus carnosus v kombinácii s mangoldom (Beta vulgaris var. Cicla) na vývoj arómy a senzorické vlastnosti biltongu", authors: "Miroslav Kročko et al." },
+    { title: "Variabilita voľných aminokyselín po tepelných úpravách mäsa vybraných druhov rýb", authors: "Matej Mázor et al." },
+    { title: "Bezpečnosť mäsa z diviakov (Sus scrofa) ulovených v rôznych európskych krajinách", authors: "Władysław Migdał et al." },
+    { title: "Chemické zloženie mäsa diviaka (Sus scrofa) loveného v poľských Karpatoch", authors: "Łukasz Migdał et al." },
+    { title: "Profil aminokyselín a mastných kyselín mäsa kalifornských holubov (Columba livia)", authors: "Adriana Pavelková et al." },
+    { title: "Dátový základ pre algoritmické riadenie antimikrobiálnej rezistencie v produkcii hovädzieho mäsa", authors: "Ivana Regecová et al." },
+    { title: "Vliv způsobu balení a doby skladování na fyzikálně chemické, senzorické a mikrobiologické parametry dušené vepřové šunky", authors: "Michaela Šmídová et al." },
+    { title: "Analýza úžitkových ukazovateľov mäsového plemena oviec - Suffolk", authors: "František Zigo et al." },
+  ]},
+  { id: "s7", title: "Sekcia 7: Bezpečnosť a kontrola potravín rastlinného pôvodu", posters: [
+    { title: "Elementárna analýza uskutočnená pomocou ICP – OES vo vybranej kolekcii múk", authors: "Želmíra Balážová et al." },
+    { title: "Vliv přídavku otrub barevných pšenic v sušenkách na fyzikální a chemické parametry v průběhu skladování", authors: "Jana Doleželová et al." },
+    { title: "Vplyv jačmeňa s neštandardnou kvalitou na proces sladovania a možnosti jeho využitia", authors: "Štefan Dráb et al." },
+    { title: "Vplyv UV-C žiarenia na senzorické vlastnosti červených vín", authors: "Marko Duvančić et al." },
+    { title: "Aplikácia extraktov z medicinálnych húb v trvanlivých bezlepkových výrobkoch", authors: "Anna Kolesárová et al." },
+    { title: "Zmeny imunoreaktivity pšeničného gliadinu v súvislosti s prídavkom bioaktívnych látok a nanočastíc", authors: "Zdeňka Javůrková et al." },
+    { title: "Vedľajšie výrobné zvyšky rastlinného pôvodu ako biologicky cenné zdroje pre špeciálne potravinárske aplikácie", authors: "Daniela Lukáčová et al." },
+    { title: "Vliv přírodního biostimulantu na antioxidační potenciál microgreens brokolice: Výsledky předběžné studie", authors: "Eliška Míková et al." },
+    { title: "Hodnocení technologických úprav na antioxidační parametry u vybraných zástupců jeřábu", authors: "Jiří Mlček et al." },
+    { title: "Hodnotenie vplyvu vybraných technologických parametrov na fyziologické vlastnosti zrna sladovníckeho jačmeňa", authors: "Miriam Solgajová et al." },
+    { title: "Charakteristika použitých kuchyňských olejů pro výrobu udržitelné bionafty 2. generace", authors: "Iveta Šístková et al." },
+    { title: "Vliv kombinace fermentačních kultur a přídavku hroznové mouky na senzorickou přijatelnost tempehu", authors: "Alexandra Tauferová et al." },
+    { title: "Analýza tepelného ošetrenia sójových krmív", authors: "Petra Timkovičová Lacková et al." },
+    { title: "Vplyv praženia a spracovania na množstvo akrylamidu vo výberovej káve", authors: "Matúš Várady et al." },
+  ]},
+];
+
+// ==================== STATE ====================
+function setCookie(name, value, days) {
+  const d = new Date(); d.setTime(d.getTime() + days*24*60*60*1000);
+  try { document.cookie = name+'='+encodeURIComponent(value)+';expires='+d.toUTCString()+';path=/;SameSite=None;Secure'; } catch(e){}
+  try { localStorage.setItem(name, value); } catch(e){}
+  try { sessionStorage.setItem(name, value); } catch(e){}
+}
+function getCookie(name) {
+  try { const v = localStorage.getItem(name); if (v !== null) return v; } catch(e){}
+  try { const v = sessionStorage.getItem(name); if (v !== null) return v; } catch(e){}
+  try {
+    const ca = document.cookie.split(';');
+    for (let c of ca) { c = c.trim(); if (c.startsWith(name+'=')) return decodeURIComponent(c.substring(name.length+1)); }
+  } catch(e){}
+  return null;
+}
+function saveSet(name, set) { setCookie(name, JSON.stringify([...set]), 30); }
+function loadSet(name) { try { return new Set(JSON.parse(getCookie(name) || '[]')); } catch(e){ return new Set(); } }
+
+let calendarAdded = loadSet('bkp_cal');
+let posterDownloaded = loadSet('bkp_posters');
+let activeSection = 'program';
+let activePosterFilter = 'all';
+
+// ==================== POPUP ====================
+function initPopup() {
+  const visited = getCookie('bkp_cop_visited');
+  if (!visited) {
+    document.getElementById('cop-popup').classList.remove('hidden');
+  }
+}
+function closeCopPopup(permanent) {
+  document.getElementById('cop-popup').classList.add('hidden');
+  if (permanent) setCookie('bkp_cop_visited', '1', 365);
+}
+function markCopVisited() {
+  setCookie('bkp_cop_visited', '1', 365);
+  document.getElementById('cop-popup').classList.add('hidden');
+}
+
+// ==================== NAV ====================
+function showSection(name, topBtn, bnavId) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec-' + name).classList.add('active');
+  activeSection = name;
+
+  if (topBtn) {
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    topBtn.classList.add('active');
+  }
+  if (bnavId) {
+    document.querySelectorAll('.bnav-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(bnavId).classList.add('active');
+    const topMap = { 'bnav-program': 0, 'bnav-postery': 1, 'bnav-info': 2 };
+    const idx = topMap[bnavId];
+    if (idx !== undefined) {
+      document.querySelectorAll('.nav-btn')[idx].click();
+    }
+  }
+  window.scrollTo(0, 0);
+
+  // Show cop popup in info section if not visited
+  if (name === 'info' && !getCookie('bkp_cop_visited')) {
+    document.getElementById('cop-popup').classList.remove('hidden');
+  }
+}
+
+// ==================== GOOGLE CALENDAR ====================
+function makeCalLink(title, date, startTime, endTime, location) {
+  const fmt = (d, t) => {
+    const [y,m,day] = d.split('-');
+    const [h,min] = t.replace('–','-').split('-')[0].trim().split(':');
+    return `${y}${m.padStart(2,'0')}${day.padStart(2,'0')}T${h.padStart(2,'0')}${(min||'00').padStart(2,'0')}00`;
+  };
+  const s = fmt(date, startTime);
+  const [sh, sm] = startTime.split(':');
+  const [eh, em] = endTime.split(':');
+  const e = fmt(date, endTime);
+  const base = 'https://calendar.google.com/calendar/render?action=TEMPLATE';
+  return `${base}&text=${encodeURIComponent(title)}&dates=${s}/${e}&location=${encodeURIComponent(location)}&details=${encodeURIComponent('BKP 2026 – Bezpečnosť a kontrola potravín')}`;
+}
+
+function parseTime(timeStr) {
+  // e.g. "9:00–9:30" or "9.00-9.30"
+  const clean = timeStr.replace('–','-').replace(/\./g,':');
+  const parts = clean.split('-');
+  return { start: parts[0].trim(), end: parts[1] ? parts[1].trim() : parts[0].trim() };
+}
+
+// ==================== SESSION RENDER ====================
+function renderSessions(sessions, containerId, date) {
+  const now = new Date();
+  const isToday = now.toLocaleDateString('sk') === new Date(date).toLocaleDateString('sk');
+  const container = document.getElementById(containerId);
+  let html = '';
+  let doneCount = 0;
+  let totalTalks = sessions.filter(s => s.type === 'talk' || s.type === 'keynote' || s.type === 'lab').length;
+
+  sessions.forEach((s, i) => {
+    const { start, end } = parseTime(s.time);
+    const [sh, sm] = start.split(':').map(Number);
+    const [eh, em] = end.split(':').map(Number);
+
+    let statusClass = '';
+    if (isToday) {
+      const nowMinutes = now.getHours() * 60 + now.getMinutes();
+      const startMin = sh * 60 + sm;
+      const endMin = eh * 60 + em;
+      if (nowMinutes > endMin) { statusClass = 'passed'; if (s.type !== 'break') doneCount++; }
+      else if (nowMinutes >= startMin && nowMinutes <= endMin) statusClass = 'ongoing';
+    }
+
+    const isAddable = s.type === 'talk' || s.type === 'keynote' || s.type === 'lab' || s.type === 'social';
+    const key = `${date}-${i}`;
+    const isAdded = calendarAdded.has(key);
+
+    html += `<div class="session-card ${s.type === 'break' ? 'break' : ''} ${s.type === 'social' ? 'social' : ''} ${statusClass}" id="sess-${containerId}-${i}">
+      <div class="session-time">${s.time}</div>`;
+    if (s.section) html += `<div style="font-size:10px;color:var(--accent);font-weight:600;letter-spacing:.05em;margin-bottom:4px;text-transform:uppercase">${s.section}</div>`;
+    html += `<div class="session-title">${s.title}</div>`;
+    if (s.speaker) html += `<div class="session-speaker">${s.speaker}</div>`;
+    html += `<div class="session-meta">
+        <span class="session-badge ${s.badge}">${s.label}</span>`;
+    if (isAddable) {
+      const { start: st, end: en } = parseTime(s.time);
+      const calUrl = makeCalLink(s.title, date, st, en, 'Kongresové centrum Ensana Esplanade, Piešťany');
+      html += `<a href="${calUrl}" target="_blank" class="cal-btn ${isAdded ? 'added' : ''}" onclick="markCal('${key}', this)">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          ${isAdded ? '✓ Pridané' : '+ Kalendár'}</a>`;
+    }
+    html += `</div></div>`;
+  });
+
+  container.innerHTML = html;
+  return { doneCount, totalTalks };
+}
+
+function markCal(key, btn) {
+  calendarAdded.add(key);
+  saveSet('bkp_cal', calendarAdded);
+  btn.classList.add('added');
+  btn.innerHTML = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> ✓ Pridané`;
+  showToast('📅 Pridané do Google Kalendára');
+}
+
+// ==================== PROGRESS ====================
+function updateProgress() {
+  const now = new Date();
+  const isDay1 = now.toDateString() === new Date('2026-03-26').toDateString();
+  const isDay2 = now.toDateString() === new Date('2026-03-27').toDateString();
+
+  if (!isDay1 && !isDay2) return;
+
+  const sessions = isDay1 ? SESSIONS_DAY1 : SESSIONS_DAY2;
+  const talks = sessions.filter(s => s.type === 'talk' || s.type === 'keynote' || s.type === 'lab');
+  let done = 0;
+  talks.forEach(s => {
+    const { end } = parseTime(s.time);
+    const [eh, em] = end.split(':').map(Number);
+    const endMin = eh * 60 + em;
+    const nowMin = now.getHours() * 60 + now.getMinutes();
+    if (nowMin > endMin) done++;
+  });
+
+  const pct = Math.round((done / talks.length) * 100);
+  document.getElementById('progressContainer').style.display = 'flex';
+  document.getElementById('progressText').textContent = `${done} / ${talks.length} odprednášané`;
+  document.getElementById('progressFill').style.width = pct + '%';
+
+  if (done < talks.length) {
+    document.getElementById('liveIndicator').style.display = 'inline-flex';
+  }
+}
+
+// ==================== POSTERS ====================
+function initPosters() {
+  const filters = document.getElementById('posterFilters');
+  let fhtml = `<button class="filter-chip active" onclick="setFilter('all', this)">Všetky</button>`;
+  POSTER_SECTIONS.forEach(sec => {
+    const short = 'Sekcia ' + sec.id.replace('s','');
+    fhtml += `<button class="filter-chip" onclick="setFilter('${sec.id}', this)">${short}</button>`;
+  });
+  filters.innerHTML = fhtml;
+  renderPosters();
+}
+
+function setFilter(id, btn) {
+  activePosterFilter = id;
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  renderPosters();
+}
+
+function filterPosters() { renderPosters(); }
+
+function renderPosters() {
+  const q = document.getElementById('posterSearch').value.toLowerCase();
+  const list = document.getElementById('posterList');
+  let html = '';
+  let total = 0;
+
+  POSTER_SECTIONS.forEach(sec => {
+    if (activePosterFilter !== 'all' && sec.id !== activePosterFilter) return;
+    const filtered = sec.posters.filter(p =>
+      !q || p.title.toLowerCase().includes(q) || p.authors.toLowerCase().includes(q)
+    );
+    if (!filtered.length) return;
+    html += `<div class="poster-section-title">${sec.title}</div>`;
+    filtered.forEach((p, i) => {
+      const key = `${sec.id}-${i}`;
+      const num = `P${sec.id.replace('s','')}.${String(i+1).padStart(2,'0')}`;
+      html += `<div class="poster-card">
+        <div class="poster-number">${num}</div>
+        <div class="poster-title">${p.title}</div>
+        <div class="poster-authors">${p.authors}</div>
+        <div class="poster-actions">
+          <a href="https://PLACEHOLDER-DRIVE-LINK/${key}.pdf" class="btn-dl disabled" target="_blank">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Stiahnuť PDF
+          </a>
+        </div>
+      </div>`;
+      total++;
+    });
+  });
+
+  if (!html) html = `<div style="text-align:center;padding:40px;color:var(--text2);font-size:14px">Žiadny poster nezodpovedá hľadaniu</div>`;
+  list.innerHTML = html;
+}
+
+// ==================== TOAST ====================
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ==================== INIT ====================
+window.addEventListener('DOMCon
