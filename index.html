@@ -1083,14 +1083,6 @@ function showSection(name, topBtn, bnavId) {
     }
   }
   window.scrollTo(0, 0);
-
-  // Show cop popup in info section if not visited
-  if (name === 'info') {
-    const status = getCookie('bkp_cop_status');
-    if (status !== 'member' && status !== 'joined') {
-      document.getElementById('cop-popup').classList.remove('hidden');
-    }
-  }
 }
 
 // ==================== GOOGLE CALENDAR ====================
