@@ -1234,4 +1234,13 @@ function showToast(msg) {
 }
 
 // ==================== INIT ====================
-window.addEventListener('DOMCon
+window.addEventListener('DOMContentLoaded', () => {
+  try { renderSessions(SESSIONS_DAY1, 'sessions-day1', '2026-03-26'); } catch(e){ console.error('day1',e); }
+  try { renderSessions(SESSIONS_DAY2, 'sessions-day2', '2026-03-27'); } catch(e){ console.error('day2',e); }
+  try { updateProgress(); } catch(e){}
+  try { initPosters(); } catch(e){ console.error('posters',e); }
+  setTimeout(() => { try { initPopup(); } catch(e){} }, 1200);
+});
+</script>
+</body>
+</html>
